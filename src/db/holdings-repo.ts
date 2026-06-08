@@ -82,7 +82,7 @@ export async function mergeLocalHoldings(
   const merged = mergeHoldings(server, local);
 
   const changed = Object.entries(merged).filter(([code, count]) => (server[code] ?? 0) !== count);
-  if (changed.length === 0) return merged;
+  if (changed.length === 0) return merged; // all keys came from `server`, so all valid
 
   const ids = await resolveCodes(db, collectionId, changed.map(([code]) => code));
   await db.transaction(async (tx) => {
@@ -99,5 +99,12 @@ export async function mergeLocalHoldings(
     }
   });
 
-  return merged;
+  // Only return codes that exist in the collection: server keys are valid by
+  // construction; changed keys are valid iff they resolved to an item id. This
+  // prevents the client from briefly showing items that aren't in the catalog.
+  const result: Holdings = {};
+  for (const [code, count] of Object.entries(merged)) {
+    if (code in server || ids.has(code)) result[code] = count;
+  }
+  return result;
 }

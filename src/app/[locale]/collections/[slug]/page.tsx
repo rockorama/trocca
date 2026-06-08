@@ -43,6 +43,9 @@ export default async function CollectionPage({
 
       <div className="mt-6">
         <CollectionTracker
+          // Remount per album so client-side nav between collections gets fresh
+          // state and re-runs the offline merge instead of showing stale counts.
+          key={collection.slug}
           slug={collection.slug}
           items={collection.items}
           signedIn={signedIn}

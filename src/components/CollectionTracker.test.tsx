@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { render, screen, fireEvent, waitFor, cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import { NextIntlClientProvider } from "next-intl";
@@ -72,5 +72,54 @@ describe("CollectionTracker", () => {
     fireEvent.click(screen.getByLabelText(en.tracker.filterMissing));
     expect(screen.queryByLabelText(`${en.tracker.increase} BRA-01`)).not.toBeInTheDocument();
     expect(screen.getByLabelText(`${en.tracker.increase} BRA-02`)).toBeInTheDocument();
+  });
+});
+
+describe("CollectionTracker — signed in (server persistence)", () => {
+  function renderSignedIn(props: {
+    onSetCount: (code: string, count: number) => Promise<void>;
+    serverHoldings?: Record<string, number>;
+  }) {
+    return render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <CollectionTracker
+          slug="srv"
+          items={items}
+          signedIn
+          serverHoldings={props.serverHoldings ?? {}}
+          onSetCount={props.onSetCount}
+          onMerge={async () => ({})}
+        />
+      </NextIntlClientProvider>,
+    );
+  }
+
+  it("seeds the tracker from serverHoldings", () => {
+    renderSignedIn({ onSetCount: vi.fn(async () => {}), serverHoldings: { "BRA-02": 1 } });
+    expect(screen.getByLabelText(`BRA-02 ${en.collection.owned}`)).toHaveTextContent("1");
+  });
+
+  it("serializes saves per item and persists the latest count (no race)", async () => {
+    let inFlight = 0;
+    let maxInFlight = 0;
+    const persisted: number[] = [];
+    const onSetCount = vi.fn(async (_code: string, count: number) => {
+      inFlight += 1;
+      maxInFlight = Math.max(maxInFlight, inFlight);
+      await Promise.resolve(); // let other clicks queue while this write is "in flight"
+      persisted.push(count);
+      inFlight -= 1;
+    });
+
+    renderSignedIn({ onSetCount });
+    const inc = screen.getByLabelText(`${en.tracker.increase} BRA-01`);
+    fireEvent.click(inc);
+    fireEvent.click(inc);
+    fireEvent.click(inc);
+
+    await waitFor(() => expect(inFlight).toBe(0));
+    expect(maxInFlight).toBe(1); // never two concurrent writes for the same item
+    expect(persisted.at(-1)).toBe(3); // the latest value is the one that sticks
+    expect(screen.getByLabelText(`BRA-01 ${en.collection.owned}`)).toHaveTextContent("3");
   });
 });

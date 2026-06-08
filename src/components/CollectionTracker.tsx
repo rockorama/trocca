@@ -37,6 +37,13 @@ function useServerHoldings(
   const [counts, setCounts] = useState<Holdings>(serverHoldings);
   const mergeStarted = useRef(false);
 
+  // Per-item write coordination: `pending` holds the latest intended count for
+  // each code; `flushing` tracks which codes have an active writer. This makes
+  // saves for a given item strictly serial and last-write-wins, so a slow save
+  // of an older value can never clobber a newer one (the race @codex flagged).
+  const pending = useRef<Map<string, number>>(new Map());
+  const flushing = useRef<Set<string>>(new Set());
+
   useEffect(() => {
     if (!onMerge || mergeStarted.current) return;
     mergeStarted.current = true;
@@ -59,7 +66,25 @@ function useServerHoldings(
     (code: string, count: number) => {
       const safe = Math.max(0, Math.floor(count));
       setCounts((prev) => ({ ...prev, [code]: safe })); // optimistic
-      onSetCount?.(code, safe).catch((err) => console.error("Failed to save count", err));
+      if (!onSetCount) return;
+
+      pending.current.set(code, safe);
+      if (flushing.current.has(code)) return; // an active writer will pick this up
+      flushing.current.add(code);
+      void (async () => {
+        try {
+          // Drain to the latest value; new clicks during an await re-enter `pending`.
+          while (pending.current.has(code)) {
+            const value = pending.current.get(code)!;
+            pending.current.delete(code);
+            await onSetCount(code, value);
+          }
+        } catch (err) {
+          console.error("Failed to save count", err);
+        } finally {
+          flushing.current.delete(code);
+        }
+      })();
     },
     [onSetCount],
   );
