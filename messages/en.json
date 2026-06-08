@@ -31,6 +31,25 @@
     "markHave": "I have it",
     "addExtra": "Add a spare"
   },
+  "collections": {
+    "title": "Collections",
+    "subtitle": "Pick an album to track.",
+    "items": "{count} items",
+    "track": "Track this collection",
+    "yourProgress": "Your progress"
+  },
+  "tracker": {
+    "need": "Need",
+    "have": "Have",
+    "extra": "Spare",
+    "decrease": "Remove one",
+    "increase": "Add one",
+    "specials": "Specials",
+    "cities": "Host cities",
+    "reset": "Reset collection",
+    "filterAll": "All",
+    "filterMissing": "Missing only"
+  },
   "matches": {
     "title": "Your best matches",
     "empty": "No matches yet. Add the stickers you need and the spares you have.",

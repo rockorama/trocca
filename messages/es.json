@@ -31,6 +31,25 @@
     "markHave": "La tengo",
     "addExtra": "Añadir repetida"
   },
+  "collections": {
+    "title": "Colecciones",
+    "subtitle": "Elige un álbum para seguir.",
+    "items": "{count} elementos",
+    "track": "Seguir esta colección",
+    "yourProgress": "Tu progreso"
+  },
+  "tracker": {
+    "need": "Falta",
+    "have": "Tengo",
+    "extra": "Repetida",
+    "decrease": "Quitar una",
+    "increase": "Añadir una",
+    "specials": "Especiales",
+    "cities": "Ciudades sede",
+    "reset": "Reiniciar colección",
+    "filterAll": "Todas",
+    "filterMissing": "Solo las que faltan"
+  },
   "matches": {
     "title": "Tus mejores coincidencias",
     "empty": "Aún no hay coincidencias. Añade los cromos que necesitas y las repetidas que tienes.",

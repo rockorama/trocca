@@ -31,6 +31,25 @@
     "markHave": "Eu tenho",
     "addExtra": "Adicionar repetida"
   },
+  "collections": {
+    "title": "Coleções",
+    "subtitle": "Escolha um álbum para acompanhar.",
+    "items": "{count} itens",
+    "track": "Acompanhar esta coleção",
+    "yourProgress": "Seu progresso"
+  },
+  "tracker": {
+    "need": "Falta",
+    "have": "Tenho",
+    "extra": "Repetida",
+    "decrease": "Remover uma",
+    "increase": "Adicionar uma",
+    "specials": "Especiais",
+    "cities": "Cidades-sede",
+    "reset": "Reiniciar coleção",
+    "filterAll": "Todas",
+    "filterMissing": "Só as que faltam"
+  },
   "matches": {
     "title": "Suas melhores combinações",
     "empty": "Nenhuma combinação ainda. Adicione as figurinhas que faltam e as repetidas que você tem.",
