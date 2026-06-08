@@ -34,9 +34,30 @@
   "collections": {
     "title": "Collections",
     "subtitle": "Pick an album to track.",
-    "items": "{count} items",
+    "items": "{count, plural, one {# item} other {# items}}",
     "track": "Track this collection",
-    "yourProgress": "Your progress"
+    "yourProgress": "Your progress",
+    "create": "Create an album",
+    "verified": "Verified",
+    "mine": "Yours"
+  },
+  "create": {
+    "back": "Collections",
+    "title": "Create an album",
+    "subtitle": "Paste a checklist as CSV and preview it before saving. Works for any collection.",
+    "nameLabel": "Album name",
+    "publisherLabel": "Publisher",
+    "yearLabel": "Year",
+    "csvLabel": "Checklist (CSV)",
+    "csvHint": "One sticker per line: code,name,section,rarity — section and rarity are optional.",
+    "preview": "Preview",
+    "previewEmpty": "Paste your checklist to see it here.",
+    "itemCount": "{count, plural, one {# item} other {# items}}",
+    "sectionCount": "{count, plural, one {# section} other {# sections}}",
+    "createButton": "Create album",
+    "creating": "Creating…",
+    "signInRequired": "Sign in to create an album.",
+    "genericError": "Something went wrong. Please try again."
   },
   "tracker": {
     "need": "Need",

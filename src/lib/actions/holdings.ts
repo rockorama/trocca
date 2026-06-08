@@ -7,27 +7,17 @@
  * keeps working.
  */
 
-import { eq } from 'drizzle-orm';
 import { db } from '@/db/index';
-import { collections } from '@/db/schema';
 import { getCurrentUserId } from '@/lib/auth';
+import { collectionIdByVisibleSlug } from '@/db/collections-repo';
 import { getHoldings, setItemCount, mergeLocalHoldings } from '@/db/holdings-repo';
 import type { Holdings } from '@/domain/collection';
-
-async function collectionIdBySlug(slug: string): Promise<string | null> {
-  const [row] = await db
-    .select({ id: collections.id })
-    .from(collections)
-    .where(eq(collections.slug, slug))
-    .limit(1);
-  return row?.id ?? null;
-}
 
 /** The signed-in user's stored holdings for a collection (empty if signed out). */
 export async function getMyHoldings(slug: string): Promise<Holdings> {
   const userId = await getCurrentUserId();
   if (!userId) return {};
-  const collectionId = await collectionIdBySlug(slug);
+  const collectionId = await collectionIdByVisibleSlug(db, slug, userId);
   if (!collectionId) return {};
   return getHoldings(db, userId, collectionId);
 }
@@ -36,8 +26,8 @@ export async function getMyHoldings(slug: string): Promise<Holdings> {
 export async function setMyItemCount(slug: string, code: string, count: number): Promise<void> {
   const userId = await getCurrentUserId();
   if (!userId) throw new Error('Not signed in');
-  const collectionId = await collectionIdBySlug(slug);
-  if (!collectionId) throw new Error(`Unknown collection "${slug}"`);
+  const collectionId = await collectionIdByVisibleSlug(db, slug, userId);
+  if (!collectionId) throw new Error(`Unknown or inaccessible collection "${slug}"`);
   await setItemCount(db, userId, collectionId, code, count);
 }
 
@@ -45,7 +35,7 @@ export async function setMyItemCount(slug: string, code: string, count: number):
 export async function mergeMyHoldings(slug: string, local: Holdings): Promise<Holdings> {
   const userId = await getCurrentUserId();
   if (!userId) return local;
-  const collectionId = await collectionIdBySlug(slug);
+  const collectionId = await collectionIdByVisibleSlug(db, slug, userId);
   if (!collectionId) return local;
   return mergeLocalHoldings(db, userId, collectionId, local);
 }

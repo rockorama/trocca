@@ -13,6 +13,9 @@ import { ensureUser } from './user-sync';
 
 export const clerkEnabled = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
 
+/** Whether a database is configured. When false, pages fall back to seed data. */
+export const dbEnabled = Boolean(process.env.DATABASE_URL);
+
 /**
  * Resolve the signed-in user's internal id, lazily syncing their Clerk identity
  * into our `users` table. Returns null when Clerk is disabled or no one is
