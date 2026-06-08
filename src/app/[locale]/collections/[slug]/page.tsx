@@ -8,9 +8,15 @@ import { CollectionTracker } from "@/components/CollectionTracker";
 import { clerkEnabled, dbEnabled, getCurrentUserId } from "@/lib/auth";
 import { getMyHoldings, setMyItemCount, mergeMyHoldings } from "@/lib/actions/holdings";
 
-/** Load a collection by slug: from the DB when configured, else the seed demo. */
-async function getCollection(slug: string): Promise<LoadedCollection | null> {
-  if (dbEnabled) return getCollectionWithItems(db, slug);
+/**
+ * Load a collection by slug: from the DB (enforcing visibility for `userId`)
+ * when configured, else the seed demo.
+ */
+async function getCollection(
+  slug: string,
+  userId: string | null,
+): Promise<LoadedCollection | null> {
+  if (dbEnabled) return getCollectionWithItems(db, slug, userId);
   const wc = buildWorldCup2026();
   return slug === wc.slug ? { slug: wc.slug, name: wc.name, items: wc.items } : null;
 }
@@ -27,14 +33,17 @@ export default async function CollectionPage({
 }) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
-  const collection = await getCollection(slug);
+
+  // Resolve the user first so album loading can enforce visibility (a known
+  // private slug must not be viewable by someone it isn't shared with).
+  const userId = clerkEnabled ? await getCurrentUserId() : null;
+  const collection = await getCollection(slug, userId);
   if (!collection) notFound();
 
   const t = await getTranslations();
 
-  // When Clerk is configured and the user is signed in, persist to their account
-  // and seed the tracker from the server; otherwise it runs offline.
-  const signedIn = clerkEnabled ? Boolean(await getCurrentUserId()) : false;
+  // When signed in, persist to their account and seed the tracker from the server.
+  const signedIn = Boolean(userId);
   const serverHoldings = signedIn ? await getMyHoldings(slug) : {};
 
   return (

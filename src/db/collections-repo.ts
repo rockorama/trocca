@@ -7,7 +7,7 @@
  * (no owner) and their own albums.
  */
 
-import { asc, eq, isNull, or, sql } from 'drizzle-orm';
+import { and, asc, eq, isNull, or, sql, type SQL } from 'drizzle-orm';
 import type { Db } from './index';
 import { collections, items } from './schema';
 import type { CatalogItem } from '@/lib/sections';
@@ -28,6 +28,21 @@ export interface CollectionSummary {
   isOfficial: boolean;
   itemCount: number;
   mine: boolean;
+}
+
+/**
+ * The single source of truth for which albums a user may see: official catalogs,
+ * system/global albums (no owner), or their own. Used by the list AND by direct
+ * lookups so a known slug can't bypass list-level visibility.
+ */
+function visibilityCondition(userId: string | null): SQL | undefined {
+  return userId
+    ? or(
+        eq(collections.isOfficial, true),
+        isNull(collections.createdById),
+        eq(collections.createdById, userId),
+      )
+    : or(eq(collections.isOfficial, true), isNull(collections.createdById));
 }
 
 /** Turn a name into a URL-safe slug base. */
@@ -94,15 +109,36 @@ export interface LoadedCollection {
   items: CatalogItem[];
 }
 
-/** Load a collection and its catalog by slug, ordered for display. */
+/**
+ * Resolve a collection id by slug, but only if it is visible to `userId`.
+ * Returns null when it doesn't exist or the user isn't allowed to see it.
+ */
+export async function collectionIdByVisibleSlug(
+  db: Db,
+  slug: string,
+  userId: string | null,
+): Promise<string | null> {
+  const [row] = await db
+    .select({ id: collections.id })
+    .from(collections)
+    .where(and(eq(collections.slug, slug), visibilityCondition(userId)))
+    .limit(1);
+  return row?.id ?? null;
+}
+
+/**
+ * Load a collection and its catalog by slug, enforcing visibility for `userId`.
+ * Returns null when missing or not visible (callers should 404).
+ */
 export async function getCollectionWithItems(
   db: Db,
   slug: string,
+  userId: string | null,
 ): Promise<LoadedCollection | null> {
   const [collection] = await db
     .select({ id: collections.id, slug: collections.slug, name: collections.name })
     .from(collections)
-    .where(eq(collections.slug, slug))
+    .where(and(eq(collections.slug, slug), visibilityCondition(userId)))
     .limit(1);
   if (!collection) return null;
 
@@ -136,10 +172,6 @@ export async function listVisibleCollections(
   db: Db,
   userId: string | null,
 ): Promise<CollectionSummary[]> {
-  const visibility = userId
-    ? or(eq(collections.isOfficial, true), isNull(collections.createdById), eq(collections.createdById, userId))
-    : or(eq(collections.isOfficial, true), isNull(collections.createdById));
-
   const rows = await db
     .select({
       slug: collections.slug,
@@ -152,7 +184,7 @@ export async function listVisibleCollections(
     })
     .from(collections)
     .leftJoin(items, eq(items.collectionId, collections.id))
-    .where(visibility)
+    .where(visibilityCondition(userId))
     .groupBy(collections.id)
     .orderBy(asc(collections.name));
 
