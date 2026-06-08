@@ -55,6 +55,17 @@ describe("CollectionTracker", () => {
     });
   });
 
+  it("loads pre-existing holdings from localStorage on first render", () => {
+    window.localStorage.setItem(
+      "trocca:holdings:preloaded",
+      JSON.stringify({ "BRA-01": 2 }),
+    );
+    renderTracker("preloaded");
+    expect(screen.getByLabelText(`BRA-01 ${en.collection.owned}`)).toHaveTextContent("2");
+    expect(screen.getByText("+1")).toBeInTheDocument(); // one spare
+    expect(screen.getByText(en.collection.owned).previousSibling).toHaveTextContent("1");
+  });
+
   it("hides owned stickers when the missing-only filter is on", () => {
     renderTracker();
     fireEvent.click(screen.getByLabelText(`${en.tracker.increase} BRA-01`));

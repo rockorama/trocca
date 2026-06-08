@@ -41,6 +41,13 @@ describe('findMatches — core mutual matching', () => {
     expect(matches[0].theyGiveMe).toEqual([]);
   });
 
+  it('excludes traders with zero overlap even when minBalancedSize is 0', () => {
+    const others: TraderProfile[] = [
+      { userId: 'unrelated', wants: ['77'], offers: ['88'] }, // touches nothing of mine
+    ];
+    expect(findMatches(me, others, { minBalancedSize: 0 })).toEqual([]);
+  });
+
   it('never matches a user with themselves', () => {
     const clone: TraderProfile = { ...me, userId: 'me' };
     expect(findMatches(me, [clone])).toEqual([]);
@@ -120,6 +127,25 @@ describe('findMatches — determinism and locality edge cases', () => {
     const [match] = findMatches(noLocale, others);
     expect(match.sameCountry).toBe(false);
     expect(match.sameRegion).toBe(false);
+  });
+
+  it('does not treat a same region string in a different country as same-region', () => {
+    // me is BR/SP; this trader is also "SP" but in a different country.
+    const others: TraderProfile[] = [
+      { userId: 'sp-abroad', wants: ['10'], offers: ['1'], country: 'AR', region: 'SP' },
+    ];
+    const [match] = findMatches(me, others);
+    expect(match.sameCountry).toBe(false);
+    expect(match.sameRegion).toBe(false);
+  });
+
+  it('ranks a real domestic match above a same-region-string foreign one', () => {
+    const others: TraderProfile[] = [
+      // Same region *string* but abroad — must not outrank a true domestic match.
+      { userId: 'foreign-sp', wants: ['10'], offers: ['1'], country: 'AR', region: 'SP' },
+      { userId: 'domestic', wants: ['10'], offers: ['1'], country: 'BR', region: 'RJ' },
+    ];
+    expect(findMatches(me, others).map((m) => m.userId)).toEqual(['domestic', 'foreign-sp']);
   });
 
   it('produces identical output across repeated runs (determinism)', () => {

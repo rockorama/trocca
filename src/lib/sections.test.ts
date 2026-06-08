@@ -25,6 +25,16 @@ describe('groupBySection', () => {
     expect(sections[1].items).toHaveLength(2); // badge + player both under Brazil
   });
 
+  it('groups by the explicit section field when present, ignoring the name', () => {
+    const sections = groupBySection([
+      item({ name: 'Lionel Messi', section: 'Argentina' }),
+      item({ name: 'Ángel Di María', section: 'Argentina' }),
+      item({ name: 'Neymar Jr', section: 'Brasil' }),
+    ]);
+    expect(sections.map((s) => s.id)).toEqual(['Argentina', 'Brasil']);
+    expect(sections[0].items).toHaveLength(2);
+  });
+
   it('preserves first-seen order of sections and items', () => {
     const sections = groupBySection([
       item({ name: 'Zeta — A' }),

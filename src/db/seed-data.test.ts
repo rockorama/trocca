@@ -49,4 +49,10 @@ describe('buildWorldCup2026', () => {
     expect(collection.items.some((i) => i.code === 'BRA-01')).toBe(true);
     expect(collection.items.some((i) => i.code === 'BRA-18')).toBe(true);
   });
+
+  it('tags team items with an explicit section so grouping never parses names', () => {
+    const teamItems = collection.items.filter((i) => i.rarity === 'base' || i.rarity === 'badge');
+    expect(teamItems.every((i) => Boolean(i.section))).toBe(true);
+    expect(collection.items.find((i) => i.code === 'BRA-01')?.section).toBe('Brazil');
+  });
 });

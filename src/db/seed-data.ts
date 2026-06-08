@@ -11,6 +11,8 @@ export interface SeedItem {
   code: string;
   name: string;
   rarity: string;
+  /** Explicit grouping key for the tracker UI (e.g. the team name). */
+  section?: string;
   sortOrder: number;
 }
 
@@ -107,8 +109,8 @@ export function buildWorldCup2026(): SeedCollection {
   const items: SeedItem[] = [];
   let order = 0;
 
-  const push = (code: string, name: string, rarity: string) => {
-    items.push({ code, name, rarity, sortOrder: order++ });
+  const push = (code: string, name: string, rarity: string, section?: string) => {
+    items.push({ code, name, rarity, section, sortOrder: order++ });
   };
 
   push('FWC-LOGO', 'Official Emblem', 'special');
@@ -116,10 +118,10 @@ export function buildWorldCup2026(): SeedCollection {
   push('FWC-MASCOT', 'Official Mascots', 'special');
 
   for (const team of WC2026_TEAMS) {
-    push(`${team.code}-BADGE`, `${team.name} — Team Badge`, 'badge');
+    push(`${team.code}-BADGE`, `${team.name} — Team Badge`, 'badge', team.name);
     for (let n = 1; n <= PLAYERS_PER_TEAM; n++) {
       const num = String(n).padStart(2, '0');
-      push(`${team.code}-${num}`, `${team.name} — Player ${n}`, 'base');
+      push(`${team.code}-${num}`, `${team.name} — Player ${n}`, 'base', team.name);
     }
   }
 

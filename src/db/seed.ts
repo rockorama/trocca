@@ -29,7 +29,9 @@ async function main() {
       name: data.name,
       publisher: data.publisher,
       year: data.year,
-      isOfficial: true,
+      // Generated placeholder catalog, not a verified official checklist.
+      // Promote to official only once an admin-imported list replaces it.
+      isOfficial: false,
     })
     .returning({ id: collections.id });
 
@@ -39,6 +41,7 @@ async function main() {
       code: item.code,
       name: item.name,
       rarity: item.rarity,
+      section: item.section,
       sortOrder: item.sortOrder,
     })),
   );

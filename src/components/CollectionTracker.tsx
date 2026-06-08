@@ -1,25 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { collectionStats, type Holdings } from "@/domain/collection";
+import { collectionStats } from "@/domain/collection";
 import { groupBySection, type CatalogItem } from "@/lib/sections";
+import { useLocalHoldings } from "@/lib/useLocalHoldings";
 
 interface Props {
   slug: string;
   items: CatalogItem[];
-}
-
-const storageKey = (slug: string) => `trocca:holdings:${slug}`;
-
-function loadHoldings(slug: string): Holdings {
-  if (typeof window === "undefined") return {};
-  try {
-    const raw = window.localStorage.getItem(storageKey(slug));
-    return raw ? (JSON.parse(raw) as Holdings) : {};
-  } catch {
-    return {};
-  }
 }
 
 /**
@@ -30,27 +19,12 @@ function loadHoldings(slug: string): Holdings {
 export function CollectionTracker({ slug, items }: Props) {
   const t = useTranslations("tracker");
   const tc = useTranslations("collection");
-  const [counts, setCounts] = useState<Holdings>({});
+  const [counts, setCount] = useLocalHoldings(slug);
   const [missingOnly, setMissingOnly] = useState(false);
-  const [hydrated, setHydrated] = useState(false);
-
-  // Load persisted holdings after mount to avoid SSR/client mismatch.
-  useEffect(() => {
-    setCounts(loadHoldings(slug));
-    setHydrated(true);
-  }, [slug]);
-
-  useEffect(() => {
-    if (!hydrated) return;
-    window.localStorage.setItem(storageKey(slug), JSON.stringify(counts));
-  }, [counts, slug, hydrated]);
 
   const catalog = useMemo(() => items.map((i) => i.code), [items]);
   const stats = useMemo(() => collectionStats(catalog, counts), [catalog, counts]);
   const sections = useMemo(() => groupBySection(items), [items]);
-
-  const setCount = (code: string, next: number) =>
-    setCounts((prev) => ({ ...prev, [code]: Math.max(0, next) }));
 
   const percent = Math.round(stats.completion * 100);
 

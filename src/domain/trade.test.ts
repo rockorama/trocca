@@ -62,9 +62,24 @@ describe('cancellation', () => {
     expect(applyTradeEvent(start, { type: 'cancel', by: 'responder' }).status).toBe('cancelled');
   });
 
-  it('either party may cancel an accepted trade', () => {
+  it('either party may cancel an accepted trade while nothing has shipped', () => {
     const accepted = run([{ type: 'accept', by: 'responder' }]);
     expect(applyTradeEvent(accepted, { type: 'cancel', by: 'proposer' }).status).toBe('cancelled');
+  });
+
+  it('cannot cancel once a parcel is in motion (use dispute instead)', () => {
+    const shipped = run([
+      { type: 'accept', by: 'responder' },
+      { type: 'markShipped', by: 'proposer' },
+    ]);
+    expect(() => applyTradeEvent(shipped, { type: 'cancel', by: 'proposer' })).toThrow(
+      /parcel is in motion/,
+    );
+    expect(() => applyTradeEvent(shipped, { type: 'cancel', by: 'responder' })).toThrow(
+      InvalidTradeTransition,
+    );
+    // …but it can still be escalated to a dispute.
+    expect(applyTradeEvent(shipped, { type: 'dispute', by: 'responder' }).status).toBe('disputed');
   });
 
   it('cannot cancel a completed trade', () => {

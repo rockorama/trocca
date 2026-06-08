@@ -12,6 +12,7 @@
  *  - `rating` powers the reputation used by the matchmaking ranking.
  */
 
+import { sql } from 'drizzle-orm';
 import {
   pgTable,
   pgEnum,
@@ -23,6 +24,7 @@ import {
   uniqueIndex,
   index,
   primaryKey,
+  check,
 } from 'drizzle-orm/pg-core';
 
 export const localeEnum = pgEnum('locale', ['en', 'pt', 'es']);
@@ -74,6 +76,12 @@ export const items = pgTable(
     code: text('code').notNull(),
     name: text('name').notNull(),
     rarity: text('rarity'), // e.g. "base", "shiny", "legend"
+    /**
+     * Explicit grouping key for the tracker UI (e.g. a team name). Decouples
+     * sectioning from item-name formatting so it works for arbitrary, localized
+     * catalogs instead of parsing a separator out of `name`.
+     */
+    section: text('section'),
     sortOrder: integer('sort_order').notNull().default(0),
   },
   (t) => [uniqueIndex('items_collection_code_idx').on(t.collectionId, t.code)],
@@ -94,6 +102,7 @@ export const userItems = pgTable(
   (t) => [
     primaryKey({ columns: [t.userId, t.itemId] }),
     index('user_items_item_idx').on(t.itemId),
+    check('user_items_count_nonneg', sql`${t.count} >= 0`),
   ],
 );
 
@@ -118,6 +127,7 @@ export const trades = pgTable(
   (t) => [
     index('trades_proposer_idx').on(t.proposerId),
     index('trades_responder_idx').on(t.responderId),
+    check('trades_distinct_parties', sql`${t.proposerId} <> ${t.responderId}`),
   ],
 );
 
@@ -131,8 +141,13 @@ export const tradeItems = pgTable(
       .notNull()
       .references(() => items.id, { onDelete: 'cascade' }),
     direction: tradeDirectionEnum('direction').notNull(),
+    /** How many copies of this item flow in `direction`. */
+    quantity: integer('quantity').notNull().default(1),
   },
-  (t) => [primaryKey({ columns: [t.tradeId, t.itemId, t.direction] })],
+  (t) => [
+    primaryKey({ columns: [t.tradeId, t.itemId, t.direction] }),
+    check('trade_items_quantity_positive', sql`${t.quantity} >= 1`),
+  ],
 );
 
 export const ratings = pgTable(
@@ -157,6 +172,8 @@ export const ratings = pgTable(
     // One rating per rater per trade.
     uniqueIndex('ratings_trade_rater_idx').on(t.tradeId, t.raterId),
     index('ratings_ratee_idx').on(t.rateeId),
+    check('ratings_score_range', sql`${t.score} between 1 and 5`),
+    check('ratings_no_self_rating', sql`${t.raterId} <> ${t.rateeId}`),
   ],
 );
 

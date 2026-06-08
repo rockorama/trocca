@@ -8,6 +8,13 @@ export interface CatalogItem {
   code: string;
   name: string;
   rarity: string;
+  /**
+   * Explicit grouping key (e.g. a team name). When present it drives sectioning
+   * directly; otherwise we fall back to the legacy heuristic of reading the text
+   * before an en-dash in `name`. Prefer setting this so grouping survives
+   * arbitrary and localized catalogs.
+   */
+  section?: string;
   sortOrder: number;
 }
 
@@ -22,7 +29,11 @@ export interface Section {
   items: CatalogItem[];
 }
 
-/** The team/section name is the text before the en-dash in an item name. */
+/**
+ * Legacy fallback when an item carries no explicit `section`: derive the group
+ * from the text before an en-dash in the name. Catalogs should set `section`
+ * instead so grouping doesn't depend on name formatting or language.
+ */
 function teamLabel(name: string): string {
   const idx = name.indexOf('—');
   return idx === -1 ? name.trim() : name.slice(0, idx).trim();
@@ -52,7 +63,7 @@ export function groupBySection(items: CatalogItem[]): Section[] {
     } else if (item.rarity === 'city') {
       ensure('cities', 'cities', '').items.push(item);
     } else {
-      const label = teamLabel(item.name);
+      const label = item.section ?? teamLabel(item.name);
       ensure(label, 'team', label).items.push(item);
     }
   }

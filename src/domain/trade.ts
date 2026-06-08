@@ -109,11 +109,28 @@ export function applyTradeEvent(state: TradeState, event: TradeEvent): TradeStat
     }
 
     case 'cancel': {
-      // Either party may cancel before the swap is in motion or settled.
-      if (state.status !== 'proposed' && state.status !== 'accepted') {
-        throw new InvalidTradeTransition(state.status, event.type);
+      // Either party may cancel a proposal, or an accepted trade *only while no
+      // parcel is in motion yet*. Once anyone has shipped or confirmed receipt,
+      // the trade can no longer be unilaterally cancelled — the only non-happy
+      // exit is a dispute, so a shipped parcel can't be cancelled out from under
+      // the other party.
+      if (state.status === 'proposed') return { ...state, status: 'cancelled' };
+      if (state.status === 'accepted') {
+        const inMotion =
+          state.proposerShipped ||
+          state.responderShipped ||
+          state.proposerReceived ||
+          state.responderReceived;
+        if (inMotion) {
+          throw new InvalidTradeTransition(
+            state.status,
+            event.type,
+            'Cannot cancel once a parcel is in motion — open a dispute instead',
+          );
+        }
+        return { ...state, status: 'cancelled' };
       }
-      return { ...state, status: 'cancelled' };
+      throw new InvalidTradeTransition(state.status, event.type);
     }
 
     case 'markShipped': {

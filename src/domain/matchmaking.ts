@@ -106,16 +106,26 @@ export function findMatches(
     const iGiveThem = intersectionSorted(myOffers, otherWants);
 
     const balancedSize = Math.min(theyGiveMe.length, iGiveThem.length);
+    const totalOverlap = theyGiveMe.length + iGiveThem.length;
     if (balancedSize < minBalancedSize) continue;
+    // Never surface a "match" with no tradeable items at all (matters when
+    // minBalancedSize is 0, which would otherwise admit unrelated traders).
+    if (totalOverlap === 0) continue;
+
+    // A shared region only counts as same-region when it's the same country too,
+    // so "BR/SP" and another country's "SP" don't masquerade as a local match.
+    const sameCountry = me.country !== undefined && me.country === other.country;
+    const sameRegion =
+      sameCountry && me.region !== undefined && me.region === other.region;
 
     matches.push({
       userId: other.userId,
       theyGiveMe,
       iGiveThem,
       balancedSize,
-      totalOverlap: theyGiveMe.length + iGiveThem.length,
-      sameCountry: me.country !== undefined && me.country === other.country,
-      sameRegion: me.region !== undefined && me.region === other.region,
+      totalOverlap,
+      sameCountry,
+      sameRegion,
       reputation: other.reputation ?? 0,
     });
   }
