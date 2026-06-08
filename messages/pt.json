@@ -1,0 +1,60 @@
+{
+  "app": {
+    "name": "Trocca",
+    "tagline": "Complete qualquer coleção, troque com qualquer pessoa."
+  },
+  "nav": {
+    "home": "Início",
+    "collections": "Coleções",
+    "matches": "Combinações",
+    "trades": "Trocas",
+    "signIn": "Entrar"
+  },
+  "home": {
+    "heroTitle": "Pare de procurar trocas só nos grupos das grandes cidades.",
+    "heroSubtitle": "Acompanhe seu álbum, marque suas repetidas e deixe o Trocca encontrar quem completa a sua coleção — onde quer que estejam.",
+    "ctaPrimary": "Começar minha coleção",
+    "ctaSecondary": "Como funciona",
+    "feature1Title": "Qualquer coleção",
+    "feature1Body": "Figurinhas da Copa, cards, moedas — se tem uma lista, dá para acompanhar.",
+    "feature2Title": "Combinação inteligente",
+    "feature2Body": "Conectamos você com quem quer suas repetidas e tem o que falta no seu álbum.",
+    "feature3Title": "Trocas seguras",
+    "feature3Body": "Envie, confirme o recebimento e avaliem um ao outro. A reputação mantém as trocas honestas."
+  },
+  "collection": {
+    "progress": "Progresso",
+    "owned": "Tenho",
+    "missing": "Faltam",
+    "extras": "Repetidas para trocar",
+    "complete": "{percent}% completo",
+    "markHave": "Eu tenho",
+    "addExtra": "Adicionar repetida"
+  },
+  "matches": {
+    "title": "Suas melhores combinações",
+    "empty": "Nenhuma combinação ainda. Adicione as figurinhas que faltam e as repetidas que você tem.",
+    "theyGiveYou": "Eles te dão",
+    "youGiveThem": "Você dá a eles",
+    "balanced": "{count, plural, one {# troca justa} other {# trocas justas}}",
+    "sameRegion": "Mesma região",
+    "sameCountry": "Mesmo país",
+    "propose": "Propor troca"
+  },
+  "trade": {
+    "status": {
+      "proposed": "Proposta",
+      "accepted": "Aceita",
+      "completed": "Concluída",
+      "declined": "Recusada",
+      "cancelled": "Cancelada",
+      "disputed": "Em disputa"
+    },
+    "accept": "Aceitar",
+    "decline": "Recusar",
+    "cancel": "Cancelar",
+    "markShipped": "Enviei meu pacote",
+    "markReceived": "Recebi o pacote",
+    "openDispute": "Relatar um problema"
+  }
+}

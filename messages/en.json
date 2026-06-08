@@ -1,0 +1,60 @@
+{
+  "app": {
+    "name": "Trocca",
+    "tagline": "Complete any collection, trade with anyone."
+  },
+  "nav": {
+    "home": "Home",
+    "collections": "Collections",
+    "matches": "Matches",
+    "trades": "Trades",
+    "signIn": "Sign in"
+  },
+  "home": {
+    "heroTitle": "Stop hunting for trades in big-city groups.",
+    "heroSubtitle": "Track your album, mark your spares, and let Trocca find the people who complete your collection — wherever they are.",
+    "ctaPrimary": "Start your collection",
+    "ctaSecondary": "How it works",
+    "feature1Title": "Any collection",
+    "feature1Body": "World Cup stickers, trading cards, coins — if it has a checklist, you can track it.",
+    "feature2Title": "Smart matchmaking",
+    "feature2Body": "We pair you with traders who want your spares and own what you're missing.",
+    "feature3Title": "Safe swaps",
+    "feature3Body": "Ship, confirm receipt, and rate each other. Reputation keeps trades honest."
+  },
+  "collection": {
+    "progress": "Progress",
+    "owned": "Owned",
+    "missing": "Missing",
+    "extras": "Spares to trade",
+    "complete": "{percent}% complete",
+    "markHave": "I have it",
+    "addExtra": "Add a spare"
+  },
+  "matches": {
+    "title": "Your best matches",
+    "empty": "No matches yet. Add the stickers you need and the spares you have.",
+    "theyGiveYou": "They give you",
+    "youGiveThem": "You give them",
+    "balanced": "{count, plural, one {# fair swap} other {# fair swaps}}",
+    "sameRegion": "Same region",
+    "sameCountry": "Same country",
+    "propose": "Propose a trade"
+  },
+  "trade": {
+    "status": {
+      "proposed": "Proposed",
+      "accepted": "Accepted",
+      "completed": "Completed",
+      "declined": "Declined",
+      "cancelled": "Cancelled",
+      "disputed": "Disputed"
+    },
+    "accept": "Accept",
+    "decline": "Decline",
+    "cancel": "Cancel",
+    "markShipped": "I shipped my parcel",
+    "markReceived": "I received their parcel",
+    "openDispute": "Report a problem"
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "app": {
+    "name": "Trocca",
+    "tagline": "Completa cualquier colección, intercambia con cualquiera."
+  },
+  "nav": {
+    "home": "Inicio",
+    "collections": "Colecciones",
+    "matches": "Coincidencias",
+    "trades": "Intercambios",
+    "signIn": "Iniciar sesión"
+  },
+  "home": {
+    "heroTitle": "Deja de buscar intercambios solo en los grupos de las grandes ciudades.",
+    "heroSubtitle": "Lleva el control de tu álbum, marca tus repetidas y deja que Trocca encuentre a quienes completan tu colección — estén donde estén.",
+    "ctaPrimary": "Empezar mi colección",
+    "ctaSecondary": "Cómo funciona",
+    "feature1Title": "Cualquier colección",
+    "feature1Body": "Cromos del Mundial, cartas, monedas — si tiene una lista, puedes seguirlo.",
+    "feature2Title": "Emparejamiento inteligente",
+    "feature2Body": "Te conectamos con quienes quieren tus repetidas y tienen lo que te falta.",
+    "feature3Title": "Intercambios seguros",
+    "feature3Body": "Envía, confirma la recepción y califíquense mutuamente. La reputación mantiene los intercambios honestos."
+  },
+  "collection": {
+    "progress": "Progreso",
+    "owned": "Tengo",
+    "missing": "Faltan",
+    "extras": "Repetidas para intercambiar",
+    "complete": "{percent}% completo",
+    "markHave": "La tengo",
+    "addExtra": "Añadir repetida"
+  },
+  "matches": {
+    "title": "Tus mejores coincidencias",
+    "empty": "Aún no hay coincidencias. Añade los cromos que necesitas y las repetidas que tienes.",
+    "theyGiveYou": "Te dan",
+    "youGiveThem": "Les das",
+    "balanced": "{count, plural, one {# intercambio justo} other {# intercambios justos}}",
+    "sameRegion": "Misma región",
+    "sameCountry": "Mismo país",
+    "propose": "Proponer intercambio"
+  },
+  "trade": {
+    "status": {
+      "proposed": "Propuesto",
+      "accepted": "Aceptado",
+      "completed": "Completado",
+      "declined": "Rechazado",
+      "cancelled": "Cancelado",
+      "disputed": "En disputa"
+    },
+    "accept": "Aceptar",
+    "decline": "Rechazar",
+    "cancel": "Cancelar",
+    "markShipped": "Envié mi paquete",
+    "markReceived": "Recibí el paquete",
+    "openDispute": "Reportar un problema"
+  }
+}
