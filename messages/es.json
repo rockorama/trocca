@@ -34,9 +34,30 @@
   "collections": {
     "title": "Colecciones",
     "subtitle": "Elige un álbum para seguir.",
-    "items": "{count} elementos",
+    "items": "{count, plural, one {# elemento} other {# elementos}}",
     "track": "Seguir esta colección",
-    "yourProgress": "Tu progreso"
+    "yourProgress": "Tu progreso",
+    "create": "Crear un álbum",
+    "verified": "Verificado",
+    "mine": "Tuyos"
+  },
+  "create": {
+    "back": "Colecciones",
+    "title": "Crear un álbum",
+    "subtitle": "Pega una lista en CSV y previsualízala antes de guardar. Funciona para cualquier colección.",
+    "nameLabel": "Nombre del álbum",
+    "publisherLabel": "Editorial",
+    "yearLabel": "Año",
+    "csvLabel": "Lista (CSV)",
+    "csvHint": "Un cromo por línea: code,name,section,rarity — sección y rareza son opcionales.",
+    "preview": "Vista previa",
+    "previewEmpty": "Pega tu lista para verla aquí.",
+    "itemCount": "{count, plural, one {# elemento} other {# elementos}}",
+    "sectionCount": "{count, plural, one {# sección} other {# secciones}}",
+    "createButton": "Crear álbum",
+    "creating": "Creando…",
+    "signInRequired": "Inicia sesión para crear un álbum.",
+    "genericError": "Algo salió mal. Inténtalo de nuevo."
   },
   "tracker": {
     "need": "Falta",

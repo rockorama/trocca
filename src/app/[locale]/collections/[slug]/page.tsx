@@ -1,20 +1,24 @@
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { db } from "@/db/index";
 import { buildWorldCup2026 } from "@/db/seed-data";
+import { getCollectionWithItems, type LoadedCollection } from "@/db/collections-repo";
 import { CollectionTracker } from "@/components/CollectionTracker";
-import { clerkEnabled, getCurrentUserId } from "@/lib/auth";
+import { clerkEnabled, dbEnabled, getCurrentUserId } from "@/lib/auth";
 import { getMyHoldings, setMyItemCount, mergeMyHoldings } from "@/lib/actions/holdings";
 
-/** Resolve a collection by slug. Currently only the seeded WC 2026 album. */
-function getCollection(slug: string) {
+/** Load a collection by slug: from the DB when configured, else the seed demo. */
+async function getCollection(slug: string): Promise<LoadedCollection | null> {
+  if (dbEnabled) return getCollectionWithItems(db, slug);
   const wc = buildWorldCup2026();
-  return slug === wc.slug ? wc : null;
+  return slug === wc.slug ? { slug: wc.slug, name: wc.name, items: wc.items } : null;
 }
 
-export function generateStaticParams() {
-  return [{ slug: buildWorldCup2026().slug }];
-}
+// Albums are loaded per-request: from the DB when configured (user-created
+// albums exist beyond the seed, and holdings are per-user), or the seed demo
+// offline. Either way we render on demand rather than prerendering at build.
+export const dynamic = "force-dynamic";
 
 export default async function CollectionPage({
   params,
@@ -23,7 +27,7 @@ export default async function CollectionPage({
 }) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
-  const collection = getCollection(slug);
+  const collection = await getCollection(slug);
   if (!collection) notFound();
 
   const t = await getTranslations();

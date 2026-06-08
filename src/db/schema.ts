@@ -62,8 +62,10 @@ export const collections = pgTable('collections', {
   name: text('name').notNull(),
   publisher: text('publisher'),
   year: integer('year'),
-  /** Official/verified catalog vs. community-submitted. */
+  /** Official/verified global catalog (admin-curated) vs. user-submitted. */
   isOfficial: boolean('is_official').notNull().default(false),
+  /** Owner of a user-created album. Null for system/seed/official catalogs. */
+  createdById: uuid('created_by_id').references(() => users.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
