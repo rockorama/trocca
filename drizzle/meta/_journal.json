@@ -15,6 +15,13 @@
       "when": 1780882185527,
       "tag": "0001_schema_invariants_sections_qty",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1780883087920,
+      "tag": "0002_add_clerk_id_to_users",
+      "breakpoints": true
     }
   ]
 }

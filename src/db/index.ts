@@ -7,7 +7,7 @@ import * as schema from './schema';
  * use, so importing this module (e.g. from a Server Component tree or a test)
  * never requires a live database or DATABASE_URL to be set.
  */
-type Db = PostgresJsDatabase<typeof schema>;
+export type Db = PostgresJsDatabase<typeof schema>;
 
 const globalForDb = globalThis as unknown as { __troccaDb?: Db };
 

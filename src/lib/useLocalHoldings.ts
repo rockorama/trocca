@@ -38,6 +38,18 @@ function parse(raw: string): Holdings {
   }
 }
 
+/** Read the persisted offline holdings for a slug (outside React). */
+export function readLocalHoldings(slug: string): Holdings {
+  return parse(readRaw(slug));
+}
+
+/** Clear offline holdings for a slug (e.g. after merging them into an account). */
+export function clearLocalHoldings(slug: string): void {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem(storageKey(slug));
+  notify();
+}
+
 /**
  * Returns the persisted holdings for `slug` and a setter for a single item's
  * count (clamped to a non-negative integer). Re-renders all hook users on write.

@@ -1,26 +1,100 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { collectionStats } from "@/domain/collection";
+import { collectionStats, type Holdings } from "@/domain/collection";
 import { groupBySection, type CatalogItem } from "@/lib/sections";
-import { useLocalHoldings } from "@/lib/useLocalHoldings";
+import {
+  useLocalHoldings,
+  readLocalHoldings,
+  clearLocalHoldings,
+} from "@/lib/useLocalHoldings";
 
 interface Props {
   slug: string;
   items: CatalogItem[];
+  /** When true, holdings persist to the user's account instead of localStorage. */
+  signedIn?: boolean;
+  /** The account's stored holdings (only meaningful when `signedIn`). */
+  serverHoldings?: Holdings;
+  /** Server action: persist one item's count. Provided only when signed in. */
+  onSetCount?: (code: string, count: number) => Promise<void>;
+  /** Server action: merge offline holdings into the account; returns the merge. */
+  onMerge?: (local: Holdings) => Promise<Holdings>;
 }
 
 /**
- * Offline-capable collection tracker. Holdings live in localStorage so the album
- * is usable before sign-in; the same shape maps 1:1 onto the `user_items` table
- * for later server sync. All progress math comes from the tested domain layer.
+ * Account-backed holdings: seeded from the server, written through a server
+ * action (optimistically), and reconciled once with any offline holdings left in
+ * localStorage from before sign-in (per-item max, server-side).
  */
-export function CollectionTracker({ slug, items }: Props) {
+function useServerHoldings(
+  slug: string,
+  serverHoldings: Holdings,
+  onSetCount?: (code: string, count: number) => Promise<void>,
+  onMerge?: (local: Holdings) => Promise<Holdings>,
+): [Holdings, (code: string, count: number) => void] {
+  const [counts, setCounts] = useState<Holdings>(serverHoldings);
+  const mergeStarted = useRef(false);
+
+  useEffect(() => {
+    if (!onMerge || mergeStarted.current) return;
+    mergeStarted.current = true;
+    const local = readLocalHoldings(slug);
+    if (Object.keys(local).length === 0) return;
+    let active = true;
+    onMerge(local)
+      .then((merged) => {
+        if (!active) return;
+        setCounts(merged);
+        clearLocalHoldings(slug);
+      })
+      .catch((err) => console.error("Failed to merge offline holdings", err));
+    return () => {
+      active = false;
+    };
+  }, [slug, onMerge]);
+
+  const setCount = useCallback(
+    (code: string, count: number) => {
+      const safe = Math.max(0, Math.floor(count));
+      setCounts((prev) => ({ ...prev, [code]: safe })); // optimistic
+      onSetCount?.(code, safe).catch((err) => console.error("Failed to save count", err));
+    },
+    [onSetCount],
+  );
+
+  return [counts, setCount];
+}
+
+/**
+ * Collection tracker. Offline-first: holdings live in localStorage so the album
+ * is usable before sign-in. When signed in, holdings persist to the account and
+ * any offline progress is merged in once. All progress math comes from the
+ * tested domain layer.
+ */
+export function CollectionTracker({
+  slug,
+  items,
+  signedIn = false,
+  serverHoldings = {},
+  onSetCount,
+  onMerge,
+}: Props) {
   const t = useTranslations("tracker");
   const tc = useTranslations("collection");
-  const [counts, setCount] = useLocalHoldings(slug);
   const [missingOnly, setMissingOnly] = useState(false);
+
+  // Both hooks run unconditionally (rules of hooks); we select the active source.
+  const [localCounts, setLocalCount] = useLocalHoldings(slug);
+  const [serverCounts, setServerCount] = useServerHoldings(
+    slug,
+    serverHoldings,
+    onSetCount,
+    onMerge,
+  );
+  const counts = signedIn ? serverCounts : localCounts;
+  const setCount = signedIn ? setServerCount : setLocalCount;
 
   const catalog = useMemo(() => items.map((i) => i.code), [items]);
   const stats = useMemo(() => collectionStats(catalog, counts), [catalog, counts]);

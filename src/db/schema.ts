@@ -46,6 +46,8 @@ export const tradeDirectionEnum = pgEnum('trade_direction', [
 
 export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey(),
+  /** External identity from Clerk (e.g. "user_2ab…"). Null only for seed/system rows. */
+  clerkId: text('clerk_id').unique(),
   email: text('email').notNull().unique(),
   name: text('name').notNull(),
   locale: localeEnum('locale').notNull().default('en'),

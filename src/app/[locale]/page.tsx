@@ -1,6 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { LocaleSwitcher } from "@/components/LocaleSwitcher";
 
 export default async function HomePage({
   params,
@@ -19,19 +18,6 @@ export default async function HomePage({
 
   return (
     <main className="flex-1">
-      <header className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
-        <span className="text-lg font-bold tracking-tight">{t("app.name")}</span>
-        <nav className="flex items-center gap-6 text-sm">
-          <Link href="/collections" className="hover:underline">
-            {t("nav.collections")}
-          </Link>
-          <Link href="/matches" className="hover:underline">
-            {t("nav.matches")}
-          </Link>
-          <LocaleSwitcher />
-        </nav>
-      </header>
-
       <section className="mx-auto max-w-3xl px-6 py-20 text-center">
         <h1 className="text-balance text-4xl font-extrabold tracking-tight sm:text-5xl">
           {t("home.heroTitle")}
